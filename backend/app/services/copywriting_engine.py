@@ -4,19 +4,12 @@
 """
 
 import os
-import json
 import random
 from typing import Optional
 
 from app.services.copywriting_templates import (
-    TEMPLATES,
-    STYLE_GUIDE,
     PLATFORM_HASHTAGS,
     get_template,
-    get_style_guide,
-    get_hashtags,
-    get_all_styles,
-    _normalize_platform,
 )
 
 
@@ -235,7 +228,7 @@ def _extract_context(photos: list[dict], trip: Optional[dict]) -> dict:
         context["location"] = first_photo.get("location", "未知地点")
         context["best_time"] = _suggest_best_time(first_photo.get("time", ""))
         if len(photos) > 1:
-            context["highlight"] = f"还有{len(photos)-1}个地方值得打卡"
+            context["highlight"] = f"还有{len(photos) - 1}个地方值得打卡"
         else:
             context["highlight"] = "一切都刚刚好"
 
@@ -562,21 +555,21 @@ def _generate_scene_narration(day: dict, day_num: int, style: str) -> str:
         "文艺": [
             f"Day {day_num}，我们来到了{location}。",
             f"阳光正好，微风不燥。{location}在光影中显得格外温柔。",
-            f"在这里，时间仿佛慢了下来。",
+            "在这里，时间仿佛慢了下来。",
         ],
         "活泼": [
             f"Day {day_num}！冲鸭！",
             f"哇！{location}也太好拍了吧！",
-            f"快跟我一起来看看这里有多美！",
+            "快跟我一起来看看这里有多美！",
         ],
         "简约": [
-            f"{location}",
+            "{location}",
             f"Day {day_num}",
         ],
         "攻略型": [
             f"【{location}】游玩攻略",
             f"今日游览{location}，建议用时2小时",
-            f"必打卡点推荐：",
+            "必打卡点推荐：",
         ],
         "日记型": [
             f"第{day_num}天，我们的目的地是{location}。",

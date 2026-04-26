@@ -4,7 +4,7 @@
 """
 
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -14,7 +14,6 @@ from app.services.copywriting_engine import generate_copywriting, generate_vlog_
 from app.services.copywriting_templates import (
     get_all_styles,
     get_all_platforms,
-    get_style_guide,
     STYLE_GUIDE,
 )
 

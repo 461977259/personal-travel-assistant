@@ -214,6 +214,7 @@ PLATFORM_HASHTAGS: Dict[str, list[str]] = {
 # 辅助函数
 # ---------------------------------------------------------------------------
 
+
 def get_template(style: str, platform: str) -> str:
     """
     根据风格和平台获取对应的文案模板。
