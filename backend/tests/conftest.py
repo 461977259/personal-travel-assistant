@@ -1,12 +1,12 @@
 import pytest
-from httpx import AsyncClient
-from app.main import app
+
 
 @pytest.fixture
 def test_client():
     from app.main import app
     from fastapi.testclient import TestClient
     return TestClient(app)
+
 
 @pytest.fixture
 def mock_weather_response():
@@ -17,6 +17,7 @@ def mock_weather_response():
         "precipitation": 0,
         "condition": "晴"
     }
+
 
 @pytest.fixture
 def mock_amap_response():
