@@ -9,6 +9,7 @@ from typing import Optional
 from app.integrations.amap import search_poi, get_route
 from app.integrations.weather import get_weather
 from app.services.outfit_engine import recommend_outfit
+from app.services.trip_outfit_linker import link_outfit_to_trip
 
 
 # ---------------------------------------------------------------------------
@@ -570,11 +571,19 @@ async def generate_trip(
     # 6. Estimate total cost
     total_cost = _estimate_total_cost(daily_plans, user_preferences.get("budget", "中等"))
 
-    return {
+    result = {
         "days": daily_plans,
         "traffic_summary": traffic_summary,
         "total_cost_estimate": total_cost,
     }
+
+    # 7. Link outfits from wardrobe into each day's plan
+    # user_id may be 0/None when called without auth context; use 0 as sentinel
+    uid = user_preferences.get("user_id", 0) if user_preferences else 0
+    if wardrobe_items:
+        result = link_outfit_to_trip(result, user_id=uid, wardrobe_items=wardrobe_items)
+
+    return result
 
 
 def _get_search_keywords(preferences: dict) -> list[str]:

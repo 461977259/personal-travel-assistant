@@ -14,6 +14,7 @@ from app.models.database import get_db
 from app.models.trip import Trip
 from app.models.wardrobe import WardrobeItem
 from app.services.trip_engine import generate_trip
+from app.services.trip_outfit_linker import link_outfit_to_trip, get_trip_outfits
 
 router = APIRouter()
 
@@ -263,3 +264,135 @@ async def create_trip(
     db.refresh(trip)
 
     return {"message": "行程已创建", "id": trip.id, "trip_id": trip.id}
+
+
+# ---------------------------------------------------------------------------
+# Outfit-related schemas
+# ---------------------------------------------------------------------------
+
+class RegenerateOutfitRequest(BaseModel):
+    day: Optional[int] = None  # None = all days
+    user_id: Optional[str] = None
+
+
+class DayOutfitResponse(BaseModel):
+    day: int
+    date: str
+    outfit_scene: str
+    outfit: dict
+
+
+class TripOutfitsResponse(BaseModel):
+    trip_id: int
+    outfits: list[DayOutfitResponse]
+
+
+# ---------------------------------------------------------------------------
+# Outfit routes
+# ---------------------------------------------------------------------------
+
+@router.get("/trip/{trip_id}/outfits", response_model=TripOutfitsResponse)
+async def get_trip_outfits_api(trip_id: int, db: Session = Depends(get_db)):
+    """Get outfit recommendations for all days of a trip."""
+    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="行程不存在")
+
+    trip_data = getattr(trip, "trip_data", None)
+    if not trip_data or "days" not in trip_data:
+        raise HTTPException(status_code=404, detail="行程数据不存在，请先生成行程")
+
+    outfits = get_trip_outfits(trip_data)
+    return TripOutfitsResponse(trip_id=trip_id, outfits=outfits)
+
+
+@router.post("/trip/{trip_id}/regenerate-outfit")
+async def regenerate_trip_outfit(
+    trip_id: int,
+    payload: RegenerateOutfitRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Regenerate outfit for a specific day or all days of a trip.
+
+    - day=None : regenerate for all days
+    - day=N    : regenerate only for day N
+    """
+    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="行程不存在")
+
+    trip_data = getattr(trip, "trip_data", None)
+    if not trip_data or "days" not in trip_data:
+        raise HTTPException(status_code=404, detail="行程数据不存在，请先生成行程")
+
+    # Fetch user wardrobe
+    wardrobe_items = db.query(WardrobeItem).all()
+    wardrobe_data = [
+        {
+            "id": item.id,
+            "name": item.name,
+            "type": item.type,
+            "color": item.color,
+            "thickness": item.thickness,
+            "scene": item.scene,
+        }
+        for item in wardrobe_items
+    ]
+
+    user_id = payload.user_id or trip.user_id or "0"
+
+    # Regenerate all days or just one
+    if payload.day is None:
+        # All days
+        updated = link_outfit_to_trip(trip_data, user_id=user_id, wardrobe_items=wardrobe_data)
+    else:
+        # Single day: update only that day in-place, keep others
+        days = list(trip_data.get("days", []))
+        target_found = False
+        for i, d in enumerate(days):
+            if d.get("day") == payload.day:
+                day_plan = dict(d)
+                weather = day_plan.get("weather", {})
+                weather_engine_fmt = {
+                    "temperature": weather.get("temp", 22),
+                    "condition": weather.get("condition", "晴"),
+                    "wind_speed": weather.get("wind_speed", 12),
+                    "humidity": weather.get("humidity", 65),
+                }
+                from app.services.outfit_engine import recommend_outfit
+                scene = day_plan.get("outfit_scene", "休闲")
+                try:
+                    outfit = recommend_outfit(
+                        wardrobe_items=wardrobe_data,
+                        weather=weather_engine_fmt,
+                        scene=scene,
+                    )
+                except Exception:
+                    outfit = {
+                        "outfit": [],
+                        "reason": "穿搭生成失败",
+                        "tips": "请稍后重试",
+                    }
+                day_plan["outfit"] = outfit
+                days[i] = day_plan
+                target_found = True
+                break
+        if not target_found:
+            raise HTTPException(status_code=404, detail=f"第 {payload.day} 天不存在")
+        updated = dict(trip_data)
+        updated["days"] = days
+
+    # Persist updated trip_data
+    trip.trip_data = updated
+    # Also update daily_outfits summary column
+    daily_outfits = {f"day_{d['day']}": d.get("outfit", {}) for d in updated.get("days", [])}
+    trip.daily_outfits = daily_outfits
+    db.commit()
+    db.refresh(trip)
+
+    return {
+        "message": f"穿搭已重新生成",
+        "trip_id": trip_id,
+        "days_updated": [payload.day] if payload.day else [d["day"] for d in updated.get("days", [])],
+    }
