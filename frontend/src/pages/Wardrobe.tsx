@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { wardrobeApi, type WardrobeItem } from '../api/client';
 import Loading from '../components/Loading';
 
@@ -20,8 +20,6 @@ export default function Wardrobe() {
   const [color, setColor] = useState('白色');
   const [thickness, setThickness] = useState('常规');
   const [scene, setScene] = useState('日常');
-  const [photo, setPhoto] = useState<File | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -52,8 +50,6 @@ export default function Wardrobe() {
       };
       await wardrobeApi.add(payload);
       setShowForm(false);
-      setPhoto(null);
-      if (fileRef.current) fileRef.current.value = '';
       fetchItems();
     } catch (err) {
       console.error('Failed to add item:', err);
@@ -93,15 +89,6 @@ export default function Wardrobe() {
                 placeholder="如：深蓝色外套"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="form-group">
-              <label>衣物照片</label>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
               />
             </div>
             <div className="form-group">
