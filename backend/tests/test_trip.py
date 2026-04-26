@@ -2,7 +2,6 @@
 Tests for Trip API endpoints.
 """
 import os
-from unittest.mock import patch, AsyncMock
 from fastapi.testclient import TestClient
 
 
@@ -60,7 +59,7 @@ class TestTripAPI:
             assert len(data["days"]) == 3
             for i, day in enumerate(data["days"]):
                 assert day["day"] == i + 1
-                assert f"2026-05-0{i+1}" == day["date"]
+                assert f"2026-05-0{i + 1}" == day["date"]
                 # Each day should have places and outfit
                 assert "places" in day
                 assert "outfit" in day

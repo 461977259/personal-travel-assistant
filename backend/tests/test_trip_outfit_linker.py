@@ -74,8 +74,6 @@ class TestTripOutfitLinker:
             assert "tips" in day["outfit"]
 
     def test_link_outfit_returns_new_dict(self, sample_trip_data, sample_wardrobe):
-        import copy
-        original = copy.deepcopy(sample_trip_data)
         result = link_outfit_to_trip(sample_trip_data, user_id=1, wardrobe_items=sample_wardrobe)
         # Result should be a new dict (not same object)
         assert result is not sample_trip_data
