@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-
-Base = declarative_base()
+from app.models.base import Base
 
 
 class UserPreference(Base):
@@ -10,7 +8,7 @@ class UserPreference(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), unique=True, nullable=False, index=True)
-    body_type = Column(String(50), nullable=True)  # pear, apple, hourglass, inverted_triangle, rectangle, other
+    body_type = Column(String(50), nullable=True)
     style_preference = Column(String(100), nullable=True)
     color_preference = Column(String(255), nullable=True)
     clothing_size = Column(String(20), nullable=True)

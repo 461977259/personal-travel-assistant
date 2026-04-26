@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float, JSON
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, Float, JSON
 from datetime import datetime
-
-Base = declarative_base()
+from app.models.base import Base
 
 
 class Trip(Base):
@@ -14,11 +12,11 @@ class Trip(Base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     days = Column(Integer, nullable=False)
-    itinerary = Column(JSON, nullable=True)  # structured daily plan
+    itinerary = Column(JSON, nullable=True)
     weather_summary = Column(JSON, nullable=True)
-    transportation = Column(JSON, nullable=True)  # flight/train options
-    daily_outfits = Column(JSON, nullable=True)  # outfit references per day
+    transportation = Column(JSON, nullable=True)
+    daily_outfits = Column(JSON, nullable=True)
     total_cost = Column(Float, nullable=True)
-    notes = Column(Text, nullable=True)
+    notes = Column(String(2000), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
