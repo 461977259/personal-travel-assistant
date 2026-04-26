@@ -18,5 +18,6 @@ class Trip(Base):
     daily_outfits = Column(JSON, nullable=True)
     total_cost = Column(Float, nullable=True)
     notes = Column(String(2000), nullable=True)
+    trip_data = Column(JSON, nullable=True)  # Full trip data including all days, outfits, etc.
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
