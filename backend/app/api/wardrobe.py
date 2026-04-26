@@ -6,9 +6,8 @@ DELETE /api/wardrobe/items/{item_id} - Delete an item
 """
 import os
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, Form
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.models.database import get_db
