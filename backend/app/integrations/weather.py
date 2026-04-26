@@ -4,7 +4,6 @@ API Docs: https://dev.qweather.com/docs/api/
 """
 import os
 import httpx
-from typing import Optional
 
 HEFENG_BASE_URL = "https://devapi.qweather.com"
 GEO_BASE_URL = "https://geoapi.qweather.com"
@@ -97,7 +96,7 @@ def _mock_geo(city: str) -> dict:
 def _mock_weather(city: str) -> dict:
     """Return realistic mock weather data."""
     geo = _mock_geo(city)
-    conditions = ["晴", "多云", "阴", "小雨", "阵雨", "雷阵雨"]
+    # Available conditions: 晴, 多云, 阴, 小雨, 阵雨, 雷阵雨
     return {
         "temperature": 22.5,
         "wind_speed": 12.0,

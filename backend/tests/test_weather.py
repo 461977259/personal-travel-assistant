@@ -1,4 +1,3 @@
-import pytest
 import os
 from app.integrations.weather import _mock_weather, _mock_geo
 
