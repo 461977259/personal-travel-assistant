@@ -116,7 +116,7 @@ async def _mock_llm_tag(image_url: str) -> TagSuggestion:
 # Routes
 # ---------------------------------------------------------------------------
 
-@router.post("/wardrobe/items", response_model=WardrobeItemResponse)
+@router.post("/wardrobe/items", response_model=WardrobeItemResponse, status_code=201)
 def create_wardrobe_item(item: WardrobeItemCreate, db: Session = Depends(get_db)):
     """Upload a new clothing item to the wardrobe."""
     db_item = WardrobeItem(
