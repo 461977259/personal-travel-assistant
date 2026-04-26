@@ -15,6 +15,7 @@ export default function Wardrobe() {
   const [showForm, setShowForm] = useState(false);
 
   // Form state
+  const [name, setName] = useState('');
   const [type, setType] = useState('T恤');
   const [color, setColor] = useState('白色');
   const [thickness, setThickness] = useState('常规');
@@ -42,13 +43,14 @@ export default function Wardrobe() {
     e.preventDefault();
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('type', type);
-      formData.append('color', color);
-      formData.append('thickness', thickness);
-      formData.append('scene', scene);
-      if (photo) formData.append('photo', photo);
-      await wardrobeApi.add(formData);
+      const payload = {
+        name,
+        type,
+        color,
+        thickness,
+        scene,
+      };
+      await wardrobeApi.add(payload);
       setShowForm(false);
       setPhoto(null);
       if (fileRef.current) fileRef.current.value = '';
@@ -84,6 +86,15 @@ export default function Wardrobe() {
         <form className="card form-card" onSubmit={handleSubmit}>
           <h3>添加新衣物</h3>
           <div className="form-grid">
+            <div className="form-group">
+              <label>衣物名称</label>
+              <input
+                type="text"
+                placeholder="如：深蓝色外套"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
             <div className="form-group">
               <label>衣物照片</label>
               <input
@@ -153,8 +164,8 @@ export default function Wardrobe() {
         <div className="wardrobe-grid">
           {filtered.map((item) => (
             <div key={item.id} className="wardrobe-card card">
-              {item.image_url ? (
-                <img src={item.image_url} alt={item.type} className="wardrobe-img" />
+              {item.photo_url ? (
+                <img src={item.photo_url} alt={item.type} className="wardrobe-img" />
               ) : (
                 <div className="wardrobe-img-placeholder">👔</div>
               )}

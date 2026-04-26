@@ -6,8 +6,9 @@ DELETE /api/wardrobe/items/{item_id} - Delete an item
 """
 import os
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Form
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.models.database import get_db
@@ -21,7 +22,7 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 class WardrobeItemCreate(BaseModel):
-    name: str
+    name: str = ""
     type: str  # 上装/下装/鞋/配饰
     color: str
     thickness: str  # 薄/中等/厚
@@ -29,6 +30,9 @@ class WardrobeItemCreate(BaseModel):
     photo_url: Optional[str] = None
     brand: Optional[str] = None
     size: Optional[str] = None
+
+    # Allow both JSON and FormData
+    model_config = ConfigDict(extra="ignore")
 
 
 class WardrobeItemResponse(BaseModel):
@@ -117,10 +121,19 @@ async def _mock_llm_tag(image_url: str) -> TagSuggestion:
 # ---------------------------------------------------------------------------
 
 @router.post("/wardrobe/items", response_model=WardrobeItemResponse, status_code=201)
-def create_wardrobe_item(item: WardrobeItemCreate, db: Session = Depends(get_db)):
-    """Upload a new clothing item to the wardrobe."""
+def create_wardrobe_item(
+    item: WardrobeItemCreate,
+    db: Session = Depends(get_db),
+):
+    """
+    Upload a new clothing item to the wardrobe.
+    - JSON (application/json): used by tests
+    - FormData (multipart/form-data): used by frontend — name is optional, auto-generated if empty
+    """
+    # Auto-generate name if not provided (frontend FormData may omit it)
+    resolved_name = item.name or f"{item.type}_{item.color}"
     db_item = WardrobeItem(
-        name=item.name,
+        name=resolved_name,
         type=item.type,
         color=item.color,
         thickness=item.thickness,

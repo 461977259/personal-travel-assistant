@@ -15,19 +15,26 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 // Wardrobe
 export interface WardrobeItem {
   id: number;
-  image_url?: string;
+  name?: string;
+  photo_url?: string;
   type: string;
   color: string;
   thickness: string;
   scene: string;
+  brand?: string;
+  size?: string;
   tags?: string[];
   created_at?: string;
 }
 
 export const wardrobeApi = {
   list: () => request<WardrobeItem[]>('/api/wardrobe/items'),
-  add: (data: FormData) =>
-    fetch(`${BASE_URL}/api/wardrobe/items`, { method: 'POST', body: data }),
+  add: (data: Record<string, string>) =>
+    request<WardrobeItem>(`/api/wardrobe/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
   delete: (id: number) =>
     request<void>(`/api/wardrobe/items/${id}`, { method: 'DELETE' }),
 };

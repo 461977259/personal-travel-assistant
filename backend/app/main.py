@@ -1,5 +1,7 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.health import router as health_router
 from app.api.weather import router as weather_router
 from app.api.wardrobe import router as wardrobe_router
@@ -10,7 +12,19 @@ from app.api.copywriting import router as copywriting_router
 from app.api.outfit import router as outfit_router
 from app.api.trip import router as trip_router
 
-app = FastAPI(title="Personal Travel Assistant", version="0.1.0")
+from app.models.base import Base
+from app.models.database import engine
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Import all models so Base.metadata knows about all tables
+    from app.models import wardrobe, trip, content, user_pref, outfit_log  # noqa: F401
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
+app = FastAPI(title="Personal Travel Assistant", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
