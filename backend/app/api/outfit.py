@@ -15,7 +15,7 @@ from app.models.database import get_db
 from app.models.outfit_log import OutfitLog
 from app.models.wardrobe import WardrobeItem
 from app.integrations.weather import get_weather
-from app.services.outfit_engine import recommend_outfit, format_outfit_log
+from app.services.outfit_engine import recommend_outfit
 
 router = APIRouter()
 
@@ -107,7 +107,7 @@ async def recommend_outfit_api(
     if not wardrobe_data:
         return OutfitRecommendationResponse(
             outfit=[],
-            reason=f"您的衣橱为空，请在衣橱管理中添加衣物后获取推荐",
+            reason="您的衣橱为空，请在衣橱管理中添加衣物后获取推荐",
             tips="先添加几件衣服吧！",
         )
 

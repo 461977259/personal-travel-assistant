@@ -2,7 +2,6 @@
 Tests for Trip Engine.
 """
 import pytest
-import asyncio
 from app.services.trip_engine import (
     generate_trip,
     _cluster_pois_by_proximity,

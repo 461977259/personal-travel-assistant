@@ -2,7 +2,6 @@
 Outfit Recommendation Engine.
 Provides intelligent clothing recommendations based on weather, scene, and body type.
 """
-import math
 from typing import Optional
 
 
@@ -222,8 +221,6 @@ def recommend_outfit(
         }
     """
     temperature = weather.get("temperature", 20)
-    wind_speed = weather.get("wind_speed", 0)
-    humidity = weather.get("humidity", 50)
     condition = weather.get("condition", "")
     layer_count = _get_layer_count(temperature)
 

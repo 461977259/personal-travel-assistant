@@ -7,8 +7,6 @@ from app.services.outfit_engine import (
     _get_layer_count,
     _colors_compatible,
     _score_item_for_scene,
-    _generate_reason,
-    _generate_tips,
     _get_required_types,
     _ensure_color_harmony,
 )

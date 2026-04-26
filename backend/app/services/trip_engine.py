@@ -2,12 +2,11 @@
 Trip Generation Engine.
 Generates multi-day travel itineraries with attractions, routes, weather, and outfit recommendations.
 """
-import json
 import math
 from datetime import datetime, timedelta
 from typing import Optional
 
-from app.integrations.amap import search_poi, get_route, get_distance
+from app.integrations.amap import search_poi, get_route
 from app.integrations.weather import get_weather
 from app.services.outfit_engine import recommend_outfit
 
@@ -253,12 +252,7 @@ def _build_daily_schedule(
 def get_route_sync(origin: str, destination: str, mode: str = "walking") -> dict:
     """Synchronous wrapper for route API call."""
     import asyncio
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    return loop.run_until_complete(get_route(origin, destination, mode))
+    return asyncio.run(get_route(origin, destination, mode))
 
 
 def _get_transport_desc(from_loc: str, to_loc: str, mode: str) -> str:
