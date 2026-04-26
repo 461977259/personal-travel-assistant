@@ -392,7 +392,7 @@ async def regenerate_trip_outfit(
     db.refresh(trip)
 
     return {
-        "message": f"穿搭已重新生成",
+        "message": "穿搭已重新生成",
         "trip_id": trip_id,
         "days_updated": [payload.day] if payload.day else [d["day"] for d in updated.get("days", [])],
     }

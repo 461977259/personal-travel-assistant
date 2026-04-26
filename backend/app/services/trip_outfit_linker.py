@@ -6,7 +6,6 @@ into each day's plan. Can be called:
   1. Automatically after trip generation (in generate_trip pipeline)
   2. On-demand via POST /api/trip/{trip_id}/regenerate-outfit
 """
-from typing import Optional
 
 from app.services.outfit_engine import recommend_outfit
 
